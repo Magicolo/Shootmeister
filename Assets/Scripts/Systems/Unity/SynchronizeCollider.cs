@@ -28,7 +28,7 @@ namespace Game.Systems
             {
                 ref readonly var collider = ref item.Value1.Value;
                 var circle = item.Value2.Value.Value;
-                circle.radius = collider.Radius / Mathf.Max(circle.transform.localScale.x, circle.transform.localScale.y);
+                circle.radius = (float)collider.Radius / Mathf.Max(circle.transform.localScale.x, circle.transform.localScale.y);
             }
         }
     }

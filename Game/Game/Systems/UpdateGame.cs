@@ -17,6 +17,5 @@ namespace Game.Systems
         {
             if (Group.None()) DoQuit.Emit();
         }
-
     }
 }

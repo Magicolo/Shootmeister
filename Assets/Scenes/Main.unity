@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7451ce8375d469a419923ca746a5f2a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Paused: 0
+  Paused: 1
 --- !u!4 &963751063
 Transform:
   m_ObjectHideFlags: 0

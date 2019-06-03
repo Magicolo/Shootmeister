@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using Entia.Injectables;
 using Entia.Queryables;
 using Entia.Systems;
@@ -23,10 +22,10 @@ namespace Game.Systems
             ref readonly var time = ref Time.Value;
             foreach (ref readonly var item in Group)
             {
-                var direction = Vector2.Transform(Vector2.UnitY, Matrix3x2.CreateRotation(-item.Rotation->Angle));
-                var move = direction * item.Motion->Speed * time.Delta;
-                item.Velocity->X += move.X;
-                item.Velocity->Y += move.Y;
+                var x = Math.Cos(item.Rotation->Angle);
+                var y = Math.Sin(item.Rotation->Angle);
+                item.Velocity->X += x * item.Motion->Speed * time.Delta;
+                item.Velocity->Y += y * item.Motion->Speed * time.Delta;
             }
         }
     }

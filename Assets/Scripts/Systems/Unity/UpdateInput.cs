@@ -19,8 +19,8 @@ namespace Game.Systems
                 foreach (ref readonly var item in Group)
                 {
                     ref var controller = ref item.Value;
-                    controller.Direction = (left ? -1f : 0f) + (right ? 1f : 0f);
-                    controller.Shoot = shoot ? 1f : 0f;
+                    controller.Direction = (left ? -1.0 : 0.0) + (right ? 1.0 : 0.0);
+                    controller.Shoot = shoot ? 1.0 : 0.0;
                 }
             }
         }

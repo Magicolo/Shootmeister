@@ -5,22 +5,22 @@ using Entia.Core;
 
 namespace Game.Resources
 {
-    public struct Time : IResource { public float Current; public float Delta; public uint Frames; }
+    public struct Time : IResource { public double Current, Delta; public uint Frames; }
     public struct Spawn : IResource
     {
         [Default]
         public static Spawn Default => new Resources.Spawn
         {
-            Rate = (0.15f, 0.35f),
-            Distance = (8f, 12f),
-            Speed = (0.75f, 1.25f),
-            Health = (1, 10)
+            Rate = (0.15, 0.35),
+            Distance = (8.0, 12.0),
+            Speed = (0.75, 1.25),
+            Health = (1.0, 10.0)
         };
 
-        public (float minimum, float maximum) Rate;
-        public (float minimum, float maximum) Distance;
-        public (float minimum, float maximum) Speed;
-        public (float minimum, float maximum) Health;
-        public float Next;
+        public (double minimum, double maximum) Rate;
+        public (double minimum, double maximum) Distance;
+        public (double minimum, double maximum) Speed;
+        public (double minimum, double maximum) Health;
+        public double Next;
     }
 }

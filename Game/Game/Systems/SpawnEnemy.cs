@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using Entia.Core;
 using Entia.Injectables;
 using Entia.Systems;
@@ -28,14 +27,17 @@ namespace Game.Systems
                 spawn.Next += 1f / _random.Next(spawn.Rate);
 
                 var distance = _random.Next(spawn.Distance);
-                var position = Vector2.Normalize(new Vector2(_random.Next(-1f, 1f), _random.Next(-1f, 1f))) * distance;
-                var angle = 3 * Math.PI / 2.0 - Math.Atan2(position.Y, position.X);
-                var lifetime = distance * 2f;
+                var x = _random.Next(-1.0, 1.0);
+                var y = _random.Next(-1.0, 1.0);
+                var magnitude = Math.Sqrt(x * x + y * y);
+                var position = (x: x * distance / magnitude, y: y * distance / magnitude);
+                var angle = Math.Atan2(position.y, position.x) + Math.PI;
+                var lifetime = distance * 2.0;
                 var speed = _random.Next(spawn.Speed);
                 var health = _random.Next(spawn.Health);
                 Entities.Enemy(Components,
-                    new Components.Position { X = position.X, Y = position.Y },
-                    new Components.Rotation { Angle = (float)angle },
+                    new Components.Position { X = position.x, Y = position.y },
+                    new Components.Rotation { Angle = angle },
                     lifetime,
                     speed,
                     health);

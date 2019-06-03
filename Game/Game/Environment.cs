@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using System.Linq;
 using Entia;
 using Entia.Core;
 using Entia.Modules;
@@ -52,8 +52,8 @@ namespace Game
             System<Systems.UpdateGame>()
         );
 
-        public const int Observations = 5 * 1;
         public const int Actions = 3;
+        public const int Observations = 5 * 4 + 1;
 
         public (int current, int maximum) Steps;
         public readonly Reward Rewards;
@@ -90,6 +90,12 @@ namespace Game
             _controllers = _world.Controllers();
         }
 
+        public Disposable<Environment> Use()
+        {
+            Initialize();
+            return new Disposable<Environment>(this, state => state.Dispose());
+        }
+
         public void Initialize()
         {
             _onDamage = _messages.Emitter<Messages.OnDamage>();
@@ -108,42 +114,30 @@ namespace Game
         public double[] Observe()
         {
             var observations = new double[Observations];
+            if (_players.TryFirst(out var player)) observations[0] = player.Rotation->Angle;
 
-            if (_players.TryFirst(out var player))
+            var index = 1;
+            foreach (ref readonly var enemy in _enemies)
             {
-                var direction = Vector2.Transform(Vector2.UnitY, Matrix3x2.CreateRotation(player.Rotation->Angle));
-                var index = 1;
-                foreach (ref readonly var enemy in _enemies)
-                {
-                    if (index >= observations.Length) break;
-
-                    double angle = enemy.Rotation->Angle - player.Rotation->Angle + Math.PI;
-                    while (angle > Math.PI) angle -= Math.PI * 2.0;
-                    while (angle < -Math.PI) angle += Math.PI * 2.0;
-
-                    var distance = Math.Sqrt(enemy.Position->X * enemy.Position->X + enemy.Position->Y * enemy.Position->Y);
-                    observations[index++] = angle;
-                    // observations[index++] = distance;
-                    // observations[index++] = enemy.Motion->Speed;
-                    // observations[index++] = enemy.Health->Current;
-                }
+                if (index >= observations.Length) break;
+                observations[index++] = enemy.Position->X;
+                observations[index++] = enemy.Position->Y;
+                observations[index++] = enemy.Motion->Speed;
+                observations[index++] = enemy.Health->Current;
             }
 
             return observations;
         }
 
-        public (bool @continue, double[] observations, double reward) Step(double[] actions)
+        public (bool done, double[] observations, double reward) Step(double[] actions)
         {
             var reward = 0.0;
 
             if (actions[2] > 0.5) reward += Rewards.Nothing;
-            else
+            else if (_players.TryFirst(out var player))
             {
-                foreach (ref readonly var player in _players)
-                {
-                    player.Controller->Direction = (float)(actions[0] * 2.0 - 1.0);
-                    player.Controller->Shoot = (float)actions[1];
-                }
+                player.Controller->Direction = (float)(actions[0] * 2.0 - 1.0);
+                player.Controller->Shoot = (float)actions[1];
             }
 
             using (var onShoot = _onShoot.Receive())
@@ -155,12 +149,14 @@ namespace Game
 
                 reward += onShoot.Pop().Count(message => _players.Has(message.Entity)) * Rewards.Shoot;
                 reward += onDamage.Pop().Count(message => _enemies.Has(message.Target)) * Rewards.Damage;
-                reward += onKill.Pop().Count(message => _enemies.Has(message.Entity)) * Rewards.Kill;
-                reward += doQuit.Count * Rewards.Death;
+                reward += onKill.Pop().Sum(message =>
+                    _players.Has(message.Entity) ? Rewards.Death :
+                    _enemies.Has(message.Entity) ? Rewards.Kill :
+                    0.0);
 
                 var observations = Observe();
-                var @continue = ++Steps.current < Steps.maximum && doQuit.Count == 0;
-                return (@continue, observations, reward);
+                var done = ++Steps.current >= Steps.maximum || doQuit.Count > 0;
+                return (done, observations, reward);
             }
         }
 
@@ -168,12 +164,8 @@ namespace Game
         {
             _controller.Run<React.Dispose>();
             _controller.Run<Dispose>();
-            _entities.Clear();
-            _components.Clear();
-            _messages.Clear();
-            _resources.Clear();
-            _groups.Clear();
-            _controllers.Clear();
+            _world.Clear();
+            Steps.current = 0;
         }
     }
 }

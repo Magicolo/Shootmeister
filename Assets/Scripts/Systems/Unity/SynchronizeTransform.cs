@@ -39,9 +39,9 @@ namespace Game.Systems
                 ref readonly var scale = ref item.Scale.Get(out var hasScale);
                 var transform = item.Transform.Value.Value;
 
-                transform.localPosition = new Vector2(position.X, position.Y);
-                if (hasRotation) transform.localRotation = Quaternion.Euler(0f, 0f, -rotation.Angle * Mathf.Rad2Deg);
-                if (hasScale) transform.localScale = new Vector2(scale.X, scale.Y);
+                transform.localPosition = new Vector2((float)position.X, (float)position.Y);
+                if (hasRotation) transform.localRotation = Quaternion.Euler(0f, 0f, (float)rotation.Angle * Mathf.Rad2Deg - 90f);
+                if (hasScale) transform.localScale = new Vector2((float)scale.X, (float)scale.Y);
             }
         }
     }

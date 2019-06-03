@@ -30,7 +30,7 @@ namespace Neurion
         public (double rate, double decay, double minimum) Exploration;
         public readonly Random Random;
 
-        public Agent(Network brain, double discount = 0.99, (double rate, double decay, double minimum)? exploration = null, int? seed = null)
+        public Agent(Network brain, double discount = 0.95, (double rate, double decay, double minimum)? exploration = null, int? seed = null)
         {
             Brain = brain;
             Discount = discount;

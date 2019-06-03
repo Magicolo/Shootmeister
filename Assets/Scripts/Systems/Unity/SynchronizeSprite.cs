@@ -28,7 +28,7 @@ namespace Game.Systems
                 ref readonly var sprite = ref item.Value1.Value;
                 var renderer = item.Value2.Value.Value;
                 renderer.sprite = UnityEngine.Resources.Load<Sprite>(sprite.Path);
-                renderer.color = new Color(sprite.Color.R, sprite.Color.G, sprite.Color.B, sprite.Color.A);
+                renderer.color = new Color32(sprite.Color.R, sprite.Color.G, sprite.Color.B, sprite.Color.A);
             }
         }
     }

@@ -15,8 +15,4 @@
     <Reference Include="Entia.Core"> <HintPath>..\Entia\Entia.Core.dll</HintPath> </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Numerics.Vectors" Version="*"><PrivateAssets>all</PrivateAssets></PackageReference>
-  </ItemGroup>
-
 </Project>

@@ -142,12 +142,12 @@ namespace Game
 
             Initialize();
 
-            for (int i = 1; i < Agents; i++)
-            {
-                var index = i;
-                Task.Run(() => Asynchronous(index, index * 10));
-            }
-            foreach (var _ in Synchronous(0, 1)) yield return _;
+            // for (int i = 1; i < Agents; i++)
+            // {
+            //     var index = i;
+            //     Task.Run(() => Asynchronous(index, index * 10));
+            // }
+            foreach (var _ in Synchronous(0, 100)) yield return _;
 
             void UpdateStep(int index, int steps, double reward)
             {
@@ -188,9 +188,10 @@ namespace Game
             void Asynchronous(int index, int evolve)
             {
                 var agent = _agents[index];
+                var environment = new Environment(_maximumSteps, _reward);
                 while (true)
                 {
-                    foreach (var (steps, reward) in Run(agent, false))
+                    foreach (var (steps, reward) in Run(agent, environment))
                     {
                         UpdateStep(index, steps, reward);
                         while (Paused || quit) if (quit) throw new TaskCanceledException(); else Thread.Sleep(100);
@@ -202,9 +203,10 @@ namespace Game
             IEnumerable Synchronous(int index, int evolve)
             {
                 var agent = _agents[index];
+                var environment = new Environment(_maximumSteps, _reward, Node);
                 while (true)
                 {
-                    foreach (var (steps, reward) in Run(agent, true))
+                    foreach (var (steps, reward) in Run(agent, environment))
                     {
                         UpdateStep(index, steps, reward);
                         if (steps % _speed == 0) yield return null;
@@ -213,31 +215,30 @@ namespace Game
                 }
             }
 
-            IEnumerable<(int steps, double reward)> Run(Neurion.Agent agent, bool visualize)
+            IEnumerable<(int steps, double reward)> Run(Neurion.Agent agent, Environment environment)
             {
                 var replay = new Queue<(double[] actions, double[] observations, double reward)>();
-                var environment = new Environment(_maximumSteps, _reward, visualize ? Node : default);
-                environment.Initialize();
+                var observations = new double[Environment.Observations];
+                var done = false;
 
-                var observations = new double[_brain.Inputs];
-                var @continue = true;
-
-                while (@continue)
+                using (environment.Use())
                 {
-                    var actions = agent.Act(observations);
-                    var result = environment.Step(actions);
-                    @continue = result.@continue;
-                    observations = result.observations;
+                    while (!done)
+                    {
+                        var actions = agent.Act(observations);
+                        var result = environment.Step(actions);
+                        done = result.done;
+                        observations = result.observations;
 
-                    replay.Enqueue((actions, result.observations, result.reward));
-                    if (replay.Count > _memory) replay.Dequeue();
+                        replay.Enqueue((actions, result.observations, result.reward));
+                        if (replay.Count > _memory) replay.Dequeue();
 
-                    if (environment.Steps.current % _trainInterval == 0) Train();
-                    yield return (environment.Steps.current, result.reward);
+                        if (environment.Steps.current % _trainInterval == 0) Train();
+                        yield return (environment.Steps.current, result.reward);
+                    }
+
+                    Train();
                 }
-
-                Train();
-                environment.Dispose();
 
                 void Train()
                 {
