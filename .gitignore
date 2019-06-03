@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+*.user
+
+// Unity
+Library/
+Temp/
+Log*/
+Build*/
+*.sln
+*.csproj
+
+!Game/**/*.sln
+!Game/**/*.csproj
