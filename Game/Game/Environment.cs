@@ -164,7 +164,12 @@ namespace Game
         {
             _controller.Run<React.Dispose>();
             _controller.Run<Dispose>();
-            _world.Clear();
+            _entities.Clear();
+            _components.Clear();
+            _resources.Clear();
+            _controllers.Clear();
+            // NOTE: do not clear the message module since it allows modules to communicate
+            _world.Resolve();
             Steps.current = 0;
         }
     }
