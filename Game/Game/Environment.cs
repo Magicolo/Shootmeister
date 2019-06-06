@@ -33,7 +33,7 @@ namespace Game
 
         public struct Reward
         {
-            public double Kill, Damage, Shoot, Step, Nothing, Death;
+            public double Damage, Shoot, Step, Death, Nothing;
         }
 
         public static readonly Node Node = Sequence(
@@ -52,11 +52,11 @@ namespace Game
             System<Systems.UpdateGame>()
         );
 
-        public const int Actions = 3;
+        public const int Actions = 4;
         public const int Observations = 5 * 4 + 1;
 
         public (int current, int maximum) Steps;
-        public readonly Reward Rewards;
+        public Reward Rewards;
 
         readonly Node _node;
         readonly World _world;
@@ -129,15 +129,19 @@ namespace Game
             return observations;
         }
 
-        public (bool done, double[] observations, double reward) Step(double[] actions)
+        public (bool done, double[] observations, double reward) Step(int action)
         {
             var reward = 0.0;
 
-            if (actions[2] > 0.5) reward += Rewards.Nothing;
-            else if (_players.TryFirst(out var player))
+            if (_players.TryFirst(out var player))
             {
-                player.Controller->Direction = (float)(actions[0] * 2.0 - 1.0);
-                player.Controller->Shoot = (float)actions[1];
+                switch (action)
+                {
+                    case 0: player.Controller->Direction = -1.0; break;
+                    case 1: player.Controller->Direction = 1.0; break;
+                    case 2: player.Controller->Shoot = 1.0; break;
+                    case 3: reward += Rewards.Nothing; break;
+                }
             }
 
             using (var onShoot = _onShoot.Receive())
@@ -149,13 +153,11 @@ namespace Game
 
                 reward += onShoot.Pop().Count(message => _players.Has(message.Entity)) * Rewards.Shoot;
                 reward += onDamage.Pop().Count(message => _enemies.Has(message.Target)) * Rewards.Damage;
-                reward += onKill.Pop().Sum(message =>
-                    _players.Has(message.Entity) ? Rewards.Death :
-                    _enemies.Has(message.Entity) ? Rewards.Kill :
-                    0.0);
+                reward += onKill.Pop().Count(message => _players.Has(message.Entity)) * Rewards.Death;
 
                 var observations = Observe();
                 var done = ++Steps.current >= Steps.maximum || doQuit.Count > 0;
+                reward += done ? 0.0 : Rewards.Step;
                 return (done, observations, reward);
             }
         }

@@ -11,10 +11,10 @@ namespace Game.Resources
         [Default]
         public static Spawn Default => new Resources.Spawn
         {
-            Rate = (0.15, 0.35),
+            Rate = (0.15, 0.3),
             Distance = (8.0, 12.0),
-            Speed = (0.75, 1.25),
-            Health = (1.0, 10.0)
+            Speed = (0.5, 1.0),
+            Health = (1.0, 3.0)
         };
 
         public (double minimum, double maximum) Rate;

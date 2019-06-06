@@ -7,24 +7,6 @@ namespace Neurion
 {
     public sealed class Agent
     {
-        static int Maximum(double[] values)
-        {
-            if (values.Length == 0) return -1;
-
-            var maximum = values[0];
-            var index = 0;
-            for (var i = 1; i < values.Length; i++)
-            {
-                var value = values[i];
-                if (value > maximum)
-                {
-                    maximum = value;
-                    index = i;
-                }
-            }
-            return index;
-        }
-
         public readonly Network Brain;
         public readonly double Discount;
         public (double rate, double decay, double minimum) Exploration;
@@ -34,35 +16,32 @@ namespace Neurion
         {
             Brain = brain;
             Discount = discount;
-            Exploration = exploration ?? (1.0, 0.0001, 0.01);
+            Exploration = exploration ?? (1.0, 0.001, 0.01);
             Random = seed is int value ? new Random(value) : new Random();
         }
 
-        public double[] Act(double[] observations)
+        public (int action, double[] qualities) Act(double[] observations)
         {
-            var (actions, _) = Brain.Predict(observations);
-            for (int i = 0; i < actions.Length; i++) if (Random.NextDouble() < Exploration.rate) actions[i] = Random.NextDouble();
-            Exploration.rate = Math.Max(Exploration.rate - Exploration.decay, Exploration.minimum);
-            return actions;
+            var (qualities, _) = Brain.Predict(observations);
+            var action = Random.NextDouble() < Exploration.rate ? Random.Next(0, qualities.Length) : qualities.MaxIndex();
+            return (action, qualities);
         }
 
-        public void Train((double[] actions, double[] observations, double reward)[] replay)
+        public void Train((int action, double[] qualities, double[] observations, double reward)[] replay)
         {
+            Exploration.rate = Math.Max(Exploration.rate - Exploration.decay, Exploration.minimum);
             for (var i = replay.Length - 1; i >= 0; i--)
             {
                 var current = replay[i];
-                var feedback = current.reward;
+                var reward = current.reward;
                 if (i < replay.Length - 1)
                 {
                     var next = replay[i + 1];
-                    var maximum = next.actions.Max();
-                    feedback += Discount * maximum;
+                    reward += Discount * next.qualities[next.action];
                 }
 
-                var labels = current.actions.ToArray();
-                var index = Maximum(labels);
-                labels[index] = feedback;
-                Brain.Train(current.observations, labels);
+                current.qualities[current.action] = reward;
+                Brain.Train(current.observations, current.qualities);
             }
         }
 

@@ -34,6 +34,7 @@ namespace Game.Systems
                     var bullet = Entities.Bullet(Components, *item.Position, *item.Rotation, 6 * item.Controller->Shoot);
                     OnShoot.Emit(new Messages.OnShoot { Entity = item.Entity, Bullet = bullet });
                 }
+                *item.Controller = default;
             }
         }
     }

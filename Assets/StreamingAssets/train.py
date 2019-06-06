@@ -1,6 +1,7 @@
 import os
 import clr
 import random
+import time
 from tensorflow import keras
 
 directory = os.getcwd() + '/'
@@ -14,13 +15,14 @@ step_count = 1000
 action_count = Environment.Actions
 observation_count = Environment.Observations
 
+rewards = Environment.Reward()
+rewards.Shoot = -0.01
+rewards.Step = 0.1
+rewards.Death = -5
+environment = Environment(step_count, rewards)
+
 
 def run():
-    rewards = Environment.Reward()
-    rewards.Shoot = -0.01
-    rewards.Step = 0.1
-    rewards.Death = -5
-    environment = Environment(step_count, rewards)
     environment.Initialize()
 
     done = False
@@ -28,7 +30,7 @@ def run():
         actions = [random.random() for _ in range(action_count)]
         result = environment.Step(actions)
         done, observations, reward = result.Item1, [_ for _ in result.Item2], result.Item3
-        print(done, observations, reward)
+        # print(done, observations, reward)
 
     environment.Dispose()
 

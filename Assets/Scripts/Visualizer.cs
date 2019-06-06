@@ -33,10 +33,9 @@ namespace Game
 
         int _speed = 1;
         bool _fade = true;
-        double _mutation = 10.0;
-        int _trainInterval = 13;
+        double _mutation = 1.0;
         int _maximumSteps = 1000;
-        int _memory = 100;
+        int _memory = 1000;
         int[] _epochs;
         int[] _steps;
         int[] _bestSteps;
@@ -45,18 +44,16 @@ namespace Game
         Neurion.Agent[] _agents;
         Environment.Reward _reward = new Environment.Reward
         {
-            Shoot = -0.05,
-            Damage = 0.05,
-            Kill = 0.2,
-            Nothing = 0.01,
+            // Shoot = -0.01,
+            // Damage = 0.1,
+            // Nothing = 0.01,
             Step = 0.1,
-            Death = -5.0,
+            Death = -10.0,
         };
 
-        readonly Neurion.Network _brain = new Neurion.Network(0.0001,
-            new Neurion.Layer(Environment.Observations, 128, Neurion.Activation.Tanh),
-            new Neurion.Layer(128, 64, Neurion.Activation.Sigmoid),
-            new Neurion.Layer(64, Environment.Actions, Neurion.Activation.SoftMax)
+        readonly Neurion.Network _brain = new Neurion.Network(0.001,
+            new Neurion.Layer(Environment.Observations, 1024, Neurion.Activation.Relu),
+            new Neurion.Layer(1024, Environment.Actions, Neurion.Activation.SoftMax)
         );
 
         void OnGUI()
@@ -81,7 +78,6 @@ namespace Game
             Label("P = Pause | E = Explore | I = Initialize | F = Fade | Numpad = Speed");
 
             GUILayout.Space(20f);
-            TextField("Train Interval: ", ref _trainInterval, int.TryParse);
             TextField("Maximum Steps: ", ref _maximumSteps, int.TryParse);
             TextField("Memory: ", ref _memory, int.TryParse);
             TextField("Mutation: ", ref _mutation, double.TryParse);
@@ -91,8 +87,6 @@ namespace Game
             TextField("Shoot: ", ref _reward.Shoot, double.TryParse);
             Label(" | ");
             TextField("Damage: ", ref _reward.Damage, double.TryParse);
-            Label(" | ");
-            TextField("Kill: ", ref _reward.Kill, double.TryParse);
             Label(" | ");
             TextField("Nothing: ", ref _reward.Nothing, double.TryParse);
             Label(" | ");
@@ -142,11 +136,11 @@ namespace Game
 
             Initialize();
 
-            // for (int i = 1; i < Agents; i++)
-            // {
-            //     var index = i;
-            //     Task.Run(() => Asynchronous(index, index * 10));
-            // }
+            for (int i = 1; i < Agents; i++)
+            {
+                var index = i;
+                Task.Run(() => Asynchronous(index, index * 10));
+            }
             foreach (var _ in Synchronous(0, 100)) yield return _;
 
             void UpdateStep(int index, int steps, double reward)
@@ -217,23 +211,22 @@ namespace Game
 
             IEnumerable<(int steps, double reward)> Run(Neurion.Agent agent, Environment environment)
             {
-                var replay = new Queue<(double[] actions, double[] observations, double reward)>();
+                var replay = new Queue<(int action, double[] qualities, double[] observations, double reward)>();
                 var observations = new double[Environment.Observations];
                 var done = false;
 
                 using (environment.Use())
                 {
+                    environment.Rewards = _reward;
                     while (!done)
                     {
-                        var actions = agent.Act(observations);
-                        var result = environment.Step(actions);
+                        var (action, qualities) = agent.Act(observations);
+                        var result = environment.Step(action);
                         done = result.done;
                         observations = result.observations;
 
-                        replay.Enqueue((actions, result.observations, result.reward));
+                        replay.Enqueue((action, qualities, result.observations, result.reward));
                         if (replay.Count > _memory) replay.Dequeue();
-
-                        if (environment.Steps.current % _trainInterval == 0) Train();
                         yield return (environment.Steps.current, result.reward);
                     }
 
