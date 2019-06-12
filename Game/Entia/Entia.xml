@@ -225,7 +225,7 @@
             The segments.
             </value>
     </member>
-    <member name="M:Entia.Modules.Components.#ctor(Entia.Modules.Entities,Entia.Modules.Messages)">
+    <member name="M:Entia.Modules.Components.#ctor(Entia.Modules.Entities,Entia.Modules.Messages,System.Int32)">
       <summary>
             Initializes a new instance of the <see cref="T:Entia.Modules.Components" /> class.
             </summary>
@@ -563,7 +563,17 @@
     </member>
     <member name="F:Entia.Modules.Component.Segment.Types">
       <summary>
-            The selection of component types that are stored in this segment with the minimum and maximum indices of those types.
+            The selection of types that are stored in this segment.
+            </summary>
+    </member>
+    <member name="F:Entia.Modules.Component.Segment.Components">
+      <summary>
+            The selection of component types that are stored in this segment.
+            </summary>
+    </member>
+    <member name="F:Entia.Modules.Component.Segment.Tags">
+      <summary>
+            The selection of tag types that are stored in this segment.
             </summary>
     </member>
     <member name="F:Entia.Modules.Component.Segment.Entities">
@@ -2779,6 +2789,12 @@
       <summary>Returns an enumerator that iterates through the collection.</summary>
       <returns>An enumerator that can be used to iterate through the collection.</returns>
     </member>
+    <member name="M:Entia.Injectables.AllResources.Read.Get``1">
+      <inheritdoc cref="M:Entia.Modules.Resources.Get``1" />
+    </member>
+    <member name="M:Entia.Injectables.AllResources.Read.Get(System.Type)">
+      <inheritdoc cref="M:Entia.Modules.Resources.Get(System.Type)" />
+    </member>
     <member name="M:Entia.Injectables.AllResources.Read.TryGet``1(``0@)">
       <inheritdoc cref="M:Entia.Modules.Resources.TryGet``1(``0@)" />
     </member>
@@ -2814,15 +2830,6 @@
     </member>
     <member name="M:Entia.Injectables.AllResources.Has(System.Type)">
       <inheritdoc cref="M:Entia.Modules.Resources.Has(System.Type)" />
-    </member>
-    <member name="M:Entia.Injectables.AllResources.Remove``1">
-      <inheritdoc cref="M:Entia.Modules.Resources.Remove``1" />
-    </member>
-    <member name="M:Entia.Injectables.AllResources.Remove(System.Type)">
-      <inheritdoc cref="M:Entia.Modules.Resources.Remove(System.Type)" />
-    </member>
-    <member name="M:Entia.Injectables.AllResources.Clear">
-      <inheritdoc cref="M:Entia.Modules.Resources.Clear" />
     </member>
     <member>
       <summary>Returns an enumerator that iterates through the collection.</summary>
