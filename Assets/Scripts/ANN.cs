@@ -32,10 +32,10 @@ public sealed class ANN : MonoBehaviour
     public bool Test;
     public int Seed = 1;
     public uint Inputs = 2;
-    public uint[] Hidden = { 8 };
+    public uint[] Hidden = { 4 };
     public uint Outputs = 1;
-    public uint Epochs = 100;
-    public double Learn = 0.1;
+    public uint Epochs = 1000;
+    public double Learn = 0.25;
     public DataSet[] Sets =
     {
         new DataSet

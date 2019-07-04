@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using Entia.Core;
-using Entia.Modules.Group;
 
 namespace Neurion
 {
@@ -12,7 +10,7 @@ namespace Neurion
         public (double rate, double decay, double minimum) Exploration;
         public readonly Random Random;
 
-        public Agent(Network brain, double discount = 0.95, (double rate, double decay, double minimum)? exploration = null, int? seed = null)
+        public Agent(Network brain, double discount = 0.975, (double rate, double decay, double minimum)? exploration = null, int? seed = null)
         {
             Brain = brain;
             Discount = discount;
@@ -54,9 +52,9 @@ namespace Neurion
                 var layer = Brain.Layers[l];
                 var weights = layer.Weights;
                 var biases = layer.Biases;
-                for (int o = 0; o < layer.Outputs; o++)
+                for (var o = 0u; o < layer.Outputs; o++)
                 {
-                    for (int i = 0; i < layer.Inputs; i++) weights[i, o] += Mutation();
+                    for (var i = 0u; i < layer.Inputs; i++) weights[i, o] += Mutation();
                     biases[o] += Mutation();
                 }
             }

@@ -1,31 +1,21 @@
 using Entia;
 using Entia.Injectables;
-using Entia.Queryables;
 using Entia.Systems;
+using Game.Components;
 
 namespace Game.Systems
 {
-    public unsafe struct UpdateDeath : IRun
+    public struct UpdateDeath : IRunEach<Health>
     {
-        public struct Query : IQueryable
-        {
-            public Entity Entity;
-            public Components.Health* Health;
-        }
-
         public AllEntities Entities;
-        public Group<Query> Group;
         public Emitter<Messages.OnKill> OnKill;
 
-        public void Run()
+        public void Run(Entity entity, ref Health health)
         {
-            foreach (ref readonly var item in Group)
+            if (health.Current <= 0)
             {
-                if (item.Health->Current <= 0)
-                {
-                    OnKill.Emit(new Messages.OnKill { Entity = item.Entity });
-                    Entities.Destroy(item.Entity);
-                }
+                OnKill.Emit(new Messages.OnKill { Entity = entity });
+                Entities.Destroy(entity);
             }
         }
     }

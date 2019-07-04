@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Entia;
 using Entia.Core;
@@ -166,11 +164,7 @@ namespace Game
         {
             _controller.Run<React.Dispose>();
             _controller.Run<Dispose>();
-            _entities.Clear();
-            _components.Clear();
-            _resources.Clear();
-            _controllers.Clear();
-            // NOTE: do not clear the message module since it allows modules to communicate
+            _world.Clear();
             _world.Resolve();
             Steps.current = 0;
         }

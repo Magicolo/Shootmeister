@@ -1,41 +1,27 @@
 using Entia;
 using Entia.Injectables;
-using Entia.Queryables;
 using Entia.Systems;
+using Game.Components;
 
 namespace Game.Systems
 {
-    public unsafe struct UpdateControl : IRun
+    public struct UpdateControl : IRunEach<Components.Controller, Motion, Position, Rotation, Velocity>
     {
-        public struct Query : IQueryable
-        {
-            public Entity Entity;
-            public Components.Controller* Controller;
-            public Components.Motion* Motion;
-            public Components.Position* Position;
-            public Components.Rotation* Rotation;
-            public Components.Velocity* Velocity;
-        }
-
         public AllEntities Entities;
         public AllComponents Components;
         public Resource<Resources.Time>.Read Time;
-        public Group<Query> Group;
         public Emitter<Messages.OnShoot> OnShoot;
 
-        public void Run()
+        public void Run(Entity entity, ref Components.Controller controller, ref Motion motion, ref Position position, ref Rotation rotation, ref Velocity velocity)
         {
             ref readonly var time = ref Time.Value;
-            foreach (ref readonly var item in Group)
+            velocity.Angle -= controller.Direction * motion.RotateSpeed * time.Delta;
+            if (controller.Shoot > 0.5f)
             {
-                item.Velocity->Angle -= item.Controller->Direction * item.Motion->RotateSpeed * time.Delta;
-                if (item.Controller->Shoot > 0.5f)
-                {
-                    var bullet = Entities.Bullet(Components, *item.Position, *item.Rotation, 6 * item.Controller->Shoot);
-                    OnShoot.Emit(new Messages.OnShoot { Entity = item.Entity, Bullet = bullet });
-                }
-                *item.Controller = default;
+                var bullet = Entities.Bullet(Components, position, rotation, 6 * controller.Shoot);
+                OnShoot.Emit(new Messages.OnShoot { Entity = entity, Bullet = bullet });
             }
+            controller = default;
         }
     }
 }

@@ -581,7 +581,7 @@
             The entities.
             </summary>
     </member>
-    <member name="M:Entia.Modules.Component.Segment.#ctor(System.Int32,Entia.Core.BitMask,System.Int32)">
+    <member name="M:Entia.Modules.Component.Segment.#ctor(System.UInt32,Entia.Core.BitMask,System.Int32)">
       <summary>
             Initializes a new instance of the <see cref="T:Entia.Modules.Component.Segment" /> class.
             </summary>
@@ -603,7 +603,7 @@
       <param name="type">The component type.</param>
       <returns>The component store.</returns>
     </member>
-    <member name="M:Entia.Modules.Component.Segment.Ensure">
+    <member name="M:Entia.Modules.Component.Segment.Store``1">
       <summary>
             Ensures that all component stores are at least of the same size as the <see cref="F:Entia.Modules.Component.Segment.Entities" /> array.
             If a component store not large enough, it is resized.
@@ -2418,6 +2418,9 @@
       <param name="item">The item.</param>
       <returns>Returns <c>true</c> if an <paramref name="item" /> was found; otherwise, <c>false</c>.</returns>
     </member>
+    <member name="M:Entia.Injectables.Group`1.Get(Entia.Entity,System.Boolean@)">
+      <inheritdoc cref="M:Entia.Modules.Group.Group`1.Get(Entia.Entity,System.Boolean@)" />
+    </member>
     <member>
       <summary>
             Splits the group into splits of the same size.
@@ -2477,6 +2480,9 @@
             </summary>
       <param name="item">The item.</param>
       <returns>Returns <c>true</c> if an <paramref name="item" /> was found; otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:Entia.Injectables.Group`2.Get(Entia.Entity,System.Boolean@)">
+      <inheritdoc cref="M:Entia.Modules.Group.Group`1.Get(Entia.Entity,System.Boolean@)" />
     </member>
     <member>
       <summary>
@@ -2538,6 +2544,9 @@
       <param name="item">The item.</param>
       <returns>Returns <c>true</c> if an <paramref name="item" /> was found; otherwise, <c>false</c>.</returns>
     </member>
+    <member name="M:Entia.Injectables.Group`3.Get(Entia.Entity,System.Boolean@)">
+      <inheritdoc cref="M:Entia.Modules.Group.Group`1.Get(Entia.Entity,System.Boolean@)" />
+    </member>
     <member>
       <summary>
             Splits the group into splits of the same size.
@@ -2597,6 +2606,9 @@
             </summary>
       <param name="item">The item.</param>
       <returns>Returns <c>true</c> if an <paramref name="item" /> was found; otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:Entia.Injectables.Group`4.Get(Entia.Entity,System.Boolean@)">
+      <inheritdoc cref="M:Entia.Modules.Group.Group`1.Get(Entia.Entity,System.Boolean@)" />
     </member>
     <member>
       <summary>
@@ -2658,6 +2670,9 @@
       <param name="item">The item.</param>
       <returns>Returns <c>true</c> if an <paramref name="item" /> was found; otherwise, <c>false</c>.</returns>
     </member>
+    <member name="M:Entia.Injectables.Group`5.Get(Entia.Entity,System.Boolean@)">
+      <inheritdoc cref="M:Entia.Modules.Group.Group`1.Get(Entia.Entity,System.Boolean@)" />
+    </member>
     <member>
       <summary>
             Splits the group into splits of the same size.
@@ -2718,6 +2733,9 @@
       <param name="item">The item.</param>
       <returns>Returns <c>true</c> if an <paramref name="item" /> was found; otherwise, <c>false</c>.</returns>
     </member>
+    <member name="M:Entia.Injectables.Group`6.Get(Entia.Entity,System.Boolean@)">
+      <inheritdoc cref="M:Entia.Modules.Group.Group`1.Get(Entia.Entity,System.Boolean@)" />
+    </member>
     <member>
       <summary>
             Splits the group into splits of the same size.
@@ -2777,6 +2795,9 @@
             </summary>
       <param name="item">The item.</param>
       <returns>Returns <c>true</c> if an <paramref name="item" /> was found; otherwise, <c>false</c>.</returns>
+    </member>
+    <member name="M:Entia.Injectables.Group`7.Get(Entia.Entity,System.Boolean@)">
+      <inheritdoc cref="M:Entia.Modules.Group.Group`1.Get(Entia.Entity,System.Boolean@)" />
     </member>
     <member>
       <summary>

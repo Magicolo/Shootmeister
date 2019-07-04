@@ -1,32 +1,21 @@
 using Entia;
 using Entia.Injectables;
-using Entia.Queryables;
 using Entia.Systems;
+using Game.Components;
 
 namespace Game.Systems
 {
-    public unsafe struct UpdateLifetime : IRun
+    public struct UpdateLifetime : IRunEach<Lifetime>
     {
-        public struct Query : IQueryable
-        {
-            public Entity Entity;
-            public Components.Lifetime* Lifetime;
-        }
-
-        public AllEntities Entities;
         public Resource<Resources.Time>.Read Time;
-        public Group<Query> Group;
         public Emitter<Messages.OnKill> DoKill;
 
-        public void Run()
+        public void Run(Entity entity, ref Lifetime lifetime)
         {
             ref readonly var time = ref Time.Value;
-            foreach (ref readonly var item in Group)
-            {
-                item.Lifetime->Current += time.Delta;
-                if (item.Lifetime->Current >= item.Lifetime->Duration)
-                    DoKill.Emit(new Messages.OnKill { Entity = item.Entity });
-            }
+            lifetime.Current += time.Delta;
+            if (lifetime.Current >= lifetime.Duration)
+                DoKill.Emit(new Messages.OnKill { Entity = entity });
         }
     }
 }

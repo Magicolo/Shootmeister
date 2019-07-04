@@ -1,6 +1,9 @@
+using System;
+using Linealge;
+
 namespace Neurion
 {
-    public sealed class Layer
+    public readonly struct Layer : ICloneable
     {
         public readonly uint Inputs;
         public readonly uint Outputs;
@@ -27,5 +30,6 @@ namespace Neurion
         }
 
         public Layer Clone() => new Layer(Inputs, Outputs, Activation, Weights.Clone() as double[,], Biases.Clone() as double[]);
+        object ICloneable.Clone() => Clone();
     }
 }

@@ -13,7 +13,7 @@ namespace Game
             components.Set(entity, new Components.Position());
             components.Set(entity, new Components.Velocity());
             components.Set(entity, new Components.Rotation());
-            components.Set(entity, new Components.Scale { X = 1.0, Y = 1.25 });
+            components.Set(entity, new Components.Scale { X = 2.0, Y = 2.5 });
             components.Set(entity, new Components.Motion { MoveSpeed = 0.0, RotateSpeed = 2.0 });
             components.Set(entity, new Components.Sprite { Path = "Shapes/Triangle", Color = Color.Cyan });
             components.Set(entity, new Components.Collider { Radius = 0.25 });
@@ -30,7 +30,7 @@ namespace Game
             components.Set(entity, position);
             components.Set(entity, rotation);
             components.Set(entity, new Components.Scale { X = 3.0, Y = 3.0 });
-            components.Set(entity, new Components.Sprite { Path = "Shapes/Square", Color = Color.FromArgb(255, 255, (int)(255 - health * 25.0), 0) });
+            components.Set(entity, new Components.Sprite { Path = "Shapes/Square", Color = Color.FromArgb(255, 255, (int)(255 - health * 75.0), 0) });
             components.Set(entity, new Components.Velocity());
             components.Set(entity, new Components.ForwardMotion { Speed = speed });
             components.Set(entity, new Components.Lifetime { Duration = lifetime });
@@ -48,7 +48,7 @@ namespace Game
             components.Set(entity, new Entia.Components.Debug { Name = "Bullet" });
             components.Set(entity, position);
             components.Set(entity, rotation);
-            components.Set(entity, new Components.Scale { X = 0.25, Y = 0.25 });
+            components.Set(entity, new Components.Scale { X = 0.5, Y = 0.5 });
             components.Set(entity, new Components.Velocity());
             components.Set(entity, new Components.ForwardMotion { Speed = speed });
             components.Set(entity, new Components.Lifetime { Duration = 3.0 });

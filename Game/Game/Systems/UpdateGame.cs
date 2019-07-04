@@ -1,4 +1,3 @@
-using System;
 using Entia;
 using Entia.Core;
 using Entia.Injectables;

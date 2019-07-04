@@ -35,7 +35,7 @@ namespace Game
         bool _fade = true;
         double _mutation = 1.0;
         int _maximumSteps = 1000;
-        int _memory = 1000;
+        int _memory = 100;
         int[] _epochs;
         int[] _steps;
         int[] _bestSteps;
@@ -44,16 +44,17 @@ namespace Game
         Neurion.Agent[] _agents;
         Environment.Reward _reward = new Environment.Reward
         {
-            // Shoot = -0.01,
-            // Damage = 0.1,
+            Shoot = -0.01,
+            Damage = 0.1,
             // Nothing = 0.01,
-            Step = 0.1,
+            Step = 0.01,
             Death = -10.0,
         };
+        IEnumerator _routine;
 
-        readonly Neurion.Network _brain = new Neurion.Network(0.001,
-            new Neurion.Layer(Environment.Observations, 1024, Neurion.Activation.Relu),
-            new Neurion.Layer(1024, Environment.Actions, Neurion.Activation.SoftMax)
+        readonly Neurion.Network _brain = new Neurion.Network(0.05,
+            new Neurion.Layer(Environment.Observations, 64, Neurion.Activation.Tanh),
+            new Neurion.Layer(64, Environment.Actions, Neurion.Activation.SoftMax)
         );
 
         void OnGUI()
@@ -106,7 +107,7 @@ namespace Game
                 var reward = Math.Round(_rewards[i], 3).ToString("00.00");
                 var bestReward = Math.Round(_bestRewards[i], 3).ToString("00.00");
                 GUILayout.BeginHorizontal();
-                GUILayout.Space(20f);
+                GUILayout.Space(16f);
                 Label($"Epoch: {_epochs[i]} | Exploration: {exploration} | Reward: {reward} | Best Reward: {bestReward} | Steps: {steps} | Best Steps: {bestSteps}");
                 GUILayout.EndHorizontal();
             }
@@ -129,18 +130,18 @@ namespace Game
             }
         }
 
-        IEnumerator Start()
+        IEnumerable Routine()
         {
             var quit = false;
             Application.quitting += () => quit = true;
 
             Initialize();
 
-            for (int i = 1; i < Agents; i++)
-            {
-                var index = i;
-                Task.Run(() => Asynchronous(index, index * 10));
-            }
+            // for (int i = 1; i < Agents; i++)
+            // {
+            //     var index = i;
+            //     Task.Run(() => Asynchronous(index, index * 10));
+            // }
             foreach (var _ in Synchronous(0, 100)) yield return _;
 
             void UpdateStep(int index, int steps, double reward)
@@ -190,7 +191,7 @@ namespace Game
                         UpdateStep(index, steps, reward);
                         while (Paused || quit) if (quit) throw new TaskCanceledException(); else Thread.Sleep(100);
                     }
-                    agent = Next(index, evolve);
+                    // agent = Next(index, evolve);
                 }
             }
 
@@ -211,7 +212,7 @@ namespace Game
 
             IEnumerable<(int steps, double reward)> Run(Neurion.Agent agent, Environment environment)
             {
-                var replay = new Queue<(int action, double[] qualities, double[] observations, double reward)>();
+                var replay = new Queue<(int action, double[] qualities, double[] observations, double reward)>(_memory);
                 var observations = new double[Environment.Observations];
                 var done = false;
 
@@ -240,8 +241,11 @@ namespace Game
             }
         }
 
+        void Start() => _routine = Routine().GetEnumerator();
+
         void Update()
         {
+            _routine.MoveNext();
             if (Input.GetKeyDown(KeyCode.P)) Paused = !Paused;
             if (Input.GetKeyDown(KeyCode.E)) _agents.Iterate(agent => agent.Exploration.rate = 1.0);
             if (Input.GetKeyDown(KeyCode.I)) Initialize();
@@ -261,7 +265,7 @@ namespace Game
                 return false;
             }
 
-            Application.targetFrameRate = 30;
+            Application.targetFrameRate = 100;
             return
                 TrySet(KeyCode.Keypad0, 0) ||
                 TrySet(KeyCode.Keypad1, 1) ||

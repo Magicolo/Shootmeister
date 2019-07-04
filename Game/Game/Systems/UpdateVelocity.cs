@@ -1,31 +1,19 @@
 using System;
-using Entia.Injectables;
-using Entia.Queryables;
+using Entia;
 using Entia.Systems;
+using Game.Components;
 
 namespace Game.Systems
 {
-    public unsafe struct UpdateVelocity : IRun
+    public struct UpdateVelocity : IRunEach<Velocity, Position, Rotation>
     {
-        public struct Query : IQueryable
+        public void Run(Entity entity, ref Velocity velocity, ref Position position, ref Rotation rotation)
         {
-            public Components.Velocity* Velocity;
-            public Components.Position* Position;
-            public Components.Rotation* Rotation;
-        }
-
-        public Group<Query> Group;
-
-        public void Run()
-        {
-            foreach (ref readonly var item in Group)
-            {
-                item.Position->X += item.Velocity->X;
-                item.Position->Y += item.Velocity->Y;
-                item.Rotation->Angle += item.Velocity->Angle;
-                item.Rotation->Angle %= 2f * (float)Math.PI;
-                *item.Velocity = default;
-            }
+            position.X += velocity.X;
+            position.Y += velocity.Y;
+            rotation.Angle += velocity.Angle;
+            rotation.Angle %= 2f * (float)Math.PI;
+            velocity = default;
         }
     }
 }

@@ -1,32 +1,22 @@
 using System;
+using Entia;
 using Entia.Injectables;
-using Entia.Queryables;
 using Entia.Systems;
+using Game.Components;
 
 namespace Game.Systems
 {
-    public unsafe struct UpdateForwardMotion : IRun
+    public struct UpdateForwardMotion : IRunEach<ForwardMotion, Rotation, Velocity>
     {
-        public struct Query : IQueryable
-        {
-            public Components.ForwardMotion* Motion;
-            public Components.Rotation* Rotation;
-            public Components.Velocity* Velocity;
-        }
-
         public Resource<Resources.Time>.Read Time;
-        public Group<Query> Group;
 
-        public void Run()
+        public void Run(Entity entity, ref ForwardMotion motion, ref Rotation rotation, ref Velocity velocity)
         {
             ref readonly var time = ref Time.Value;
-            foreach (ref readonly var item in Group)
-            {
-                var x = Math.Cos(item.Rotation->Angle);
-                var y = Math.Sin(item.Rotation->Angle);
-                item.Velocity->X += x * item.Motion->Speed * time.Delta;
-                item.Velocity->Y += y * item.Motion->Speed * time.Delta;
-            }
+            var x = Math.Cos(rotation.Angle);
+            var y = Math.Sin(rotation.Angle);
+            velocity.X += x * motion.Speed * time.Delta;
+            velocity.Y += y * motion.Speed * time.Delta;
         }
     }
 }

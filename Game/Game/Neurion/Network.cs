@@ -1,15 +1,12 @@
 using System;
 using System.Linq;
-using System.Numerics;
-using System.Threading;
-using Entia.Core;
 
 namespace Neurion
 {
     public sealed class Network
     {
-        public uint Inputs => Layers.FirstOrDefault()?.Inputs ?? 0u;
-        public uint Outputs => Layers.LastOrDefault()?.Outputs ?? 0u;
+        public uint Inputs => Layers[0].Inputs;
+        public uint Outputs => Layers[Layers.Length - 1].Outputs;
         public readonly double Learn;
         public readonly Layer[] Layers;
 
@@ -33,7 +30,7 @@ namespace Neurion
             }
         }
 
-        public (double[] labels, (double[] inputs, double[] outputs, double[] errors)[] results) Train(double[] features, double[] labels)
+        public (double[] labels, (double[] inputs, double[] outputs, double[] gradients)[] results) Train(double[] features, double[] labels)
         {
             var results = new (double[] inputs, double[] outputs, double[] gradients)[Layers.Length];
             var predictions = Predict(features);
@@ -42,20 +39,20 @@ namespace Neurion
             for (var l = Layers.Length - 1; l >= 0; l--)
             {
                 var layer = Layers[l];
-                var activation = layer.Activation;
-                var weights = layer.Weights;
-                var biases = layer.Biases;
                 var (inputs, outputs, forwards) = predictions.results[l];
                 var gradients = new double[forwards.Length];
 
-                if (first.Change(false))
+                if (first)
                 {
+                    first = false;
                     for (var o = 0u; o < forwards.Length; o++)
                     {
                         var forward = forwards[o];
-                        var gradient = (forward - labels[o]) * activation.Backward(outputs[o], outputs, forward, forwards);
+                        var gradient = labels[o] - forward;
+                        gradient *= layer.Activation.Backward(outputs[o], outputs, forward, forwards);
                         gradients[o] = gradient;
-                        for (var i = 0u; i < inputs.Length; i++) weights[i, o] -= gradient * inputs[i] * Learn;
+                        for (var i = 0u; i < inputs.Length; i++) layer.Weights[i, o] += gradient * inputs[i] * Learn;
+                        layer.Biases[o] += gradient * Learn;
                     }
                 }
                 else
@@ -63,18 +60,18 @@ namespace Neurion
                     var nextLayer = Layers[l + 1];
                     var nextWeights = nextLayer.Weights;
                     var nextGradients = results[l + 1].gradients;
-                    for (var o1 = 0u; o1 < layer.Outputs; o1++)
+                    for (var o1 = 0u; o1 < forwards.Length; o1++)
                     {
                         var forward = forwards[o1];
                         var gradient = 0.0;
-                        for (var o2 = 0u; o2 < nextLayer.Outputs; o2++) gradient += nextGradients[o2] * nextWeights[o1, o2];
-                        gradient *= activation.Backward(outputs[o1], outputs, forward, forwards);
+                        for (var o2 = 0u; o2 < nextGradients.Length; o2++) gradient += nextGradients[o2] * nextWeights[o1, o2];
+                        gradient *= layer.Activation.Backward(outputs[o1], outputs, forward, forwards);
                         gradients[o1] = gradient;
-                        for (var i = 0u; i < inputs.Length; i++) weights[i, o1] -= gradient * inputs[i] * Learn;
+                        for (var i = 0u; i < inputs.Length; i++) layer.Weights[i, o1] += gradient * inputs[i] * Learn;
+                        layer.Biases[o1] += gradient * Learn;
                     }
                 }
 
-                for (int o = 0; o < biases.Length; o++) biases[o] -= gradients[o] * Learn;
                 results[l] = (inputs, forwards, gradients);
             }
 
@@ -96,7 +93,7 @@ namespace Neurion
                 for (var o = 0u; o < outputs.Length; o++)
                 {
                     var sum = biases[o];
-                    for (int i = 0; i < inputs.Length; i++) sum += inputs[i] * weights[i, o];
+                    for (var i = 0u; i < inputs.Length; i++) sum += inputs[i] * weights[i, o];
                     outputs[o] = sum;
                 }
 
