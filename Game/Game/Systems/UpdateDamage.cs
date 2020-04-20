@@ -1,35 +1,33 @@
+using Entia.Experimental;
 using Entia.Injectables;
 using Entia.Queryables;
-using Entia.Systems;
 
-namespace Game.Systems
+namespace Game
 {
-    public unsafe struct UpdateDamage : IRun
+    public static partial class Systems
     {
-        public struct Query : IQueryable
+        public unsafe struct UpdateDamageQuery : IQueryable
         {
             public Components.Damageable* Damageable;
             public Components.Health* Health;
         }
 
-        public AllEntities Entities;
-        public Components<Components.Damager>.Read Damagers;
-        public Receiver<Messages.OnCollision> OnCollision;
-        public Emitter<Messages.OnDamage> OnDamage;
-        public Group<Query> Group;
-
-        public void Run()
-        {
-            while (OnCollision.TryPop(out var message))
+        public static unsafe Node UpdateDamage() =>
+            Node.With((
+                AllEntities entities,
+                Components<Components.Damager>.Read damagers,
+                Receiver<Messages.OnCollision> onCollision,
+                Emitter<Messages.OnDamage> onDamage,
+                Group<UpdateDamageQuery> group) =>
+            Node.When<Phases.Run>.Receive<Messages.OnCollision>.Run((in Messages.OnCollision message) =>
             {
-                if (Damagers.TryGet(message.Source, out var damager) &&
-                    Group.TryGet(message.Target, out var item) &&
+                if (damagers.TryGet(message.Source, out var damager) &&
+                    group.TryGet(message.Target, out var item) &&
                     item.Damageable->By.HasAny(damager.Type))
                 {
                     item.Health->Current -= damager.Amount;
-                    OnDamage.Emit(new Messages.OnDamage { Source = message.Source, Target = message.Target, Amount = damager.Amount });
+                    onDamage.Emit(new Messages.OnDamage { Source = message.Source, Target = message.Target, Amount = damager.Amount });
                 }
-            }
-        }
+            }));
     }
 }

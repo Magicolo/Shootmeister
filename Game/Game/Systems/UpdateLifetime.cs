@@ -1,21 +1,20 @@
 using Entia;
+using Entia.Experimental;
 using Entia.Injectables;
-using Entia.Systems;
 using Game.Components;
 
-namespace Game.Systems
+namespace Game
 {
-    public struct UpdateLifetime : IRunEach<Lifetime>
+    public static partial class Systems
     {
-        public Resource<Resources.Time>.Read Time;
-        public Emitter<Messages.OnKill> DoKill;
-
-        public void Run(Entity entity, ref Lifetime lifetime)
-        {
-            ref readonly var time = ref Time.Value;
-            lifetime.Current += time.Delta;
-            if (lifetime.Current >= lifetime.Duration)
-                DoKill.Emit(new Messages.OnKill { Entity = entity });
-        }
+        public static Node UpdateLifetime() =>
+            Node.With((Resource<Resources.Time> time, Emitter<Messages.OnKill> onKill) =>
+            Node.When<Phases.Run>.RunEach((Entity entity, ref Lifetime lifetime) =>
+            {
+                lifetime.Current += time.Value.Delta;
+                if (lifetime.Current >= lifetime.Duration)
+                    // BUG: destroy entity?
+                    onKill.Emit(new Messages.OnKill { Entity = entity });
+            }));
     }
 }

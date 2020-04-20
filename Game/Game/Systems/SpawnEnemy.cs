@@ -1,47 +1,39 @@
 using System;
-using Entia.Core;
+using Entia.Experimental;
 using Entia.Injectables;
-using Entia.Systems;
 
-namespace Game.Systems
+namespace Game
 {
-    public struct SpawnEnemy : IRun
+    public static partial class Systems
     {
-        [Default]
-        public static SpawnEnemy Default => new SpawnEnemy { _random = new System.Random() };
-
-        public AllEntities Entities;
-        public AllComponents Components;
-        public Resource<Resources.Spawn> Spawn;
-        public Resource<Resources.Time>.Read Time;
-
-        System.Random _random;
-
-        public void Run()
+        public static Node SpawnEnemy()
         {
-            ref var spawn = ref Spawn.Value;
-            ref readonly var time = ref Time.Value;
+            var random = new Random();
+            return
+                Node.With((AllEntities entities, AllComponents components) =>
+                Node.When<Phases.Run>.Run((ref Resources.Spawn spawn, ref Resources.Time time) =>
+                {
+                    if (time.Current >= spawn.Next)
+                    {
+                        spawn.Next += 1f / random.Next(spawn.Rate);
 
-            if (time.Current >= spawn.Next)
-            {
-                spawn.Next += 1f / _random.Next(spawn.Rate);
-
-                var distance = _random.Next(spawn.Distance);
-                var x = _random.Next(-1.0, 1.0);
-                var y = _random.Next(-1.0, 1.0);
-                var magnitude = Math.Sqrt(x * x + y * y);
-                var position = (x: x * distance / magnitude, y: y * distance / magnitude);
-                var angle = Math.Atan2(position.y, position.x) + Math.PI;
-                var lifetime = distance * 2.0;
-                var speed = _random.Next(spawn.Speed);
-                var health = _random.Next(spawn.Health);
-                Entities.Enemy(Components,
-                    new Components.Position { X = position.x, Y = position.y },
-                    new Components.Rotation { Angle = angle },
-                    lifetime,
-                    speed,
-                    health);
-            }
+                        var distance = random.Next(spawn.Distance);
+                        var x = random.Next(-1.0, 1.0);
+                        var y = random.Next(-1.0, 1.0);
+                        var magnitude = Math.Sqrt(x * x + y * y);
+                        var position = (x: x * distance / magnitude, y: y * distance / magnitude);
+                        var angle = Math.Atan2(position.y, position.x) + Math.PI;
+                        var lifetime = distance * 2.0;
+                        var speed = random.Next(spawn.Speed);
+                        var health = random.Next(spawn.Health);
+                        entities.Enemy(components,
+                            new Components.Position { X = position.x, Y = position.y },
+                            new Components.Rotation { Angle = angle },
+                            lifetime,
+                            speed,
+                            health);
+                    }
+                }));
         }
     }
 }

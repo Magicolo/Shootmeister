@@ -1,6 +1,6 @@
 using Entia;
 
-namespace Messages
+namespace Game.Messages
 {
     public struct OnShoot : IMessage { public Entity Entity; public Entity Bullet; }
     public struct OnKill : IMessage { public Entity Entity; }

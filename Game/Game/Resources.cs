@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Entia;
 using Entia.Core;
 
@@ -9,7 +7,7 @@ namespace Game.Resources
     public struct Spawn : IResource
     {
         [Default]
-        public static Spawn Default => new Resources.Spawn
+        public static Spawn Default => new Spawn
         {
             Rate = (0.1, 0.2),
             Distance = (8.0, 12.0),

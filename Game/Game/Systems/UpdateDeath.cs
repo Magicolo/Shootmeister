@@ -1,22 +1,21 @@
 using Entia;
+using Entia.Experimental;
 using Entia.Injectables;
-using Entia.Systems;
 using Game.Components;
 
-namespace Game.Systems
+namespace Game
 {
-    public struct UpdateDeath : IRunEach<Health>
+    public static partial class Systems
     {
-        public AllEntities Entities;
-        public Emitter<Messages.OnKill> OnKill;
-
-        public void Run(Entity entity, ref Health health)
-        {
-            if (health.Current <= 0)
+        public static Node UpdateDeath() =>
+            Node.With((AllEntities entities, Emitter<Messages.OnKill> onKill) =>
+            Node.When<Phases.Run>.RunEach((Entity entity, ref Health health) =>
             {
-                OnKill.Emit(new Messages.OnKill { Entity = entity });
-                Entities.Destroy(entity);
-            }
-        }
+                if (health.Current <= 0)
+                {
+                    onKill.Emit(new Messages.OnKill { Entity = entity });
+                    entities.Destroy(entity);
+                }
+            }));
     }
 }
