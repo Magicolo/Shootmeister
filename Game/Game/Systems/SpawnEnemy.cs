@@ -10,8 +10,8 @@ namespace Game
         {
             var random = new Random();
             return
-                Node.With((AllEntities entities, AllComponents components) =>
-                Node.When<Phases.Run>.Run((ref Resources.Spawn spawn, ref Resources.Time time) =>
+                Node.Inject((AllEntities entities, AllComponents components) =>
+                Node.System<Phases.Run>.Run((ref Resources.Spawn spawn, ref Resources.Time time) =>
                 {
                     if (time.Current >= spawn.Next)
                     {

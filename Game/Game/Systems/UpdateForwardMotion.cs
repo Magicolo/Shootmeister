@@ -9,8 +9,8 @@ namespace Game
     public static partial class Systems
     {
         public static Node UpdateForwardMotion() =>
-            Node.With((Resource<Resources.Time>.Read time) =>
-            Node.When<Phases.Run>.RunEach((ref ForwardMotion motion, ref Rotation rotation, ref Velocity velocity) =>
+            Node.Inject((Resource<Resources.Time>.Read time) =>
+            Node.System<Phases.Run>.RunEach((ref ForwardMotion motion, ref Rotation rotation, ref Velocity velocity) =>
             {
                 var x = Math.Cos(rotation.Angle);
                 var y = Math.Sin(rotation.Angle);

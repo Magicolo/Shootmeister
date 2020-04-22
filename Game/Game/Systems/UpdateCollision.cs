@@ -15,8 +15,8 @@ namespace Game
         }
 
         public static unsafe Node UpdateCollision() =>
-            Node.With((Emitter<Messages.OnCollision> onCollision, Group<UpdateCollisionQuery> group) =>
-            Node.When<Phases.Run>.Run(() =>
+            Node.Inject((Emitter<Messages.OnCollision> onCollision, Group<UpdateCollisionQuery> group) =>
+            Node.System<Phases.Run>.Run(() =>
             {
                 foreach (ref readonly var source in group)
                 {

@@ -53,13 +53,6 @@
       <param name="world">The world.</param>
       <returns>The module.</returns>
     </member>
-    <member name="M:Entia.Modules.WorldExtensions.Resolvers(Entia.World)">
-      <summary>
-            Gets or create the <see cref="T:Entia.Modules.Resolvers" /> module.
-            </summary>
-      <param name="world">The world.</param>
-      <returns>The module.</returns>
-    </member>
     <member name="M:Entia.Modules.WorldExtensions.Resources(Entia.World)">
       <summary>
             Gets or create the <see cref="T:Entia.Modules.Resources" /> module.
@@ -3362,6 +3355,13 @@
       <summary>
             Initializes a new instance of the <see cref="T:Entia.Queryables.Any`7" /> struct.
             </summary>
+    </member>
+    <member name="M:Entia.Experimental.Modules.WorldExtensions.Resolvers(Entia.World)">
+      <summary>
+            Gets or create the <see cref="T:Entia.Experimental.Modules.Resolvers" /> module.
+            </summary>
+      <param name="world">The world.</param>
+      <returns>The module.</returns>
     </member>
     <member>
       <summary>Returns an enumerator that iterates through the collection.</summary>

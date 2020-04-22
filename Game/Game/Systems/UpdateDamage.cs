@@ -13,13 +13,13 @@ namespace Game
         }
 
         public static unsafe Node UpdateDamage() =>
-            Node.With((
+            Node.Inject((
                 AllEntities entities,
                 Components<Components.Damager>.Read damagers,
                 Receiver<Messages.OnCollision> onCollision,
                 Emitter<Messages.OnDamage> onDamage,
                 Group<UpdateDamageQuery> group) =>
-            Node.When<Phases.Run>.Receive<Messages.OnCollision>.Run((in Messages.OnCollision message) =>
+            Node.System<Phases.Run>.Receive<Messages.OnCollision>.Run((in Messages.OnCollision message) =>
             {
                 if (damagers.TryGet(message.Source, out var damager) &&
                     group.TryGet(message.Target, out var item) &&
